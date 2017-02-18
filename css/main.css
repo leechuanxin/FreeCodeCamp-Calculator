@@ -88,7 +88,8 @@ button:active {
   padding: 9px 17px; }
 
 .btn-y {
-  height: 90px; }
+  height: 90px;
+  line-height: 118px; }
 
 .btn-y:active {
   height: 87px; }
@@ -110,7 +111,7 @@ button:active {
 .display {
   background: #f7ffff;
   border: 6px solid #e0ebe3;
-  border-radius: 10px;
+  border-radius: 16px;
   padding: 13px;
   width: 100%;
   -webkit-box-shadow: inset 0px 4px 8px 1px rgba(0, 0, 0, 0.3);
