@@ -45,14 +45,7 @@ var display = (function() {
 
 	// add input
 	function addInput(newInput) {
-		if (input.textContent.length >= maxDisplayLength) {
-			showWarning(input, inputText);
-		}
-		else if (!input.classList.contains('warning')) {
-			inputText += newInput;
-			console.log(inputText.length);
-			renderInput();
-		}
+		renderInput(inputText + newInput);
 	};
 
 	// clear entry
@@ -65,6 +58,7 @@ var display = (function() {
 	function clearAll() {
 		inputText = '';
 		answerText = 0;
+
 		renderAnswer();
 		renderInput();
 	};
@@ -83,7 +77,6 @@ var display = (function() {
 			
 
 			if (answer.textContent.length > maxDisplayLength) {
-				console.log('SHOW WARNING');
 				showWarning(answer, currentDisplay);
 			}
 			else {
@@ -100,7 +93,7 @@ var display = (function() {
 					element.classList.remove('warning');
 				}
 
-				renderInput(elementDisplay);
+				input.textContent = elementDisplay;
 			}, 1000);
 		}
 		else {
@@ -109,14 +102,23 @@ var display = (function() {
 					element.classList.remove('warning');
 				}
 
-				renderAnswer(elementDisplay);
+				answer.textContent = elementDisplay;
 			}, 1000);
 		}
 	};
 
 	// render input
 	function renderInput(str) {
-		input.textContent = str || inputText;
+		var currentInputDisplay = input.textContent;
+		var nextInputDisplay = str || inputText;
+
+		if (nextInputDisplay.length <= maxDisplayLength) {
+			inputText = nextInputDisplay;
+			input.textContent = inputText;
+		}
+		else if (!input.classList.contains('warning')) {
+			showWarning(input, currentInputDisplay);
+		}
 	};
 
 	// render answer
@@ -130,15 +132,19 @@ var display = (function() {
 
 	// show warning
 	function showWarning(element, elementDisplay) {
-		element.className += ' warning';
+		if (!element.classList.contains('warning')) {
+			element.className += ' warning';
+		}
 
 		if (element.classList.contains('input')) {
 			clearTimeout(inputWarningTimeout);
-			renderInput(limitWarning.toUpperCase());
+
+			input.textContent = limitWarning.toUpperCase();
 		}
 		else {
 			clearTimeout(answerWarningTimeout);
-			renderAnswer(limitWarning.toUpperCase());
+
+			answer.textContent = limitWarning.toUpperCase();
 		}
 
 		hideWarning(element, elementDisplay);
