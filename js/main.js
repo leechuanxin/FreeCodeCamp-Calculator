@@ -26,8 +26,8 @@ var buttons = (function() {
 // Display
 var display = (function() {
 	// cache DOM
-	var input = document.querySelector('.input').querySelector('span');
-	var answer = document.querySelector('.answer').querySelector('span');
+	var input = document.querySelector('.input');
+	var answer = document.querySelector('.answer');
 
 	// init variables
 	var inputText = '';
@@ -94,7 +94,7 @@ var display = (function() {
 
 	// hide warning
 	function hideWarning(element, elementDisplay) {
-		if (element.parentNode.classList.contains('input')) {
+		if (element.classList.contains('input')) {
 			inputWarningTimeout = setTimeout(function() {
 				if (element.classList.contains('warning')) {
 					element.classList.remove('warning');
@@ -130,9 +130,9 @@ var display = (function() {
 
 	// show warning
 	function showWarning(element, elementDisplay) {
-		element.className = 'warning';
+		element.className += ' warning';
 
-		if (element.parentNode.classList.contains('input')) {
+		if (element.classList.contains('input')) {
 			clearTimeout(inputWarningTimeout);
 			renderInput(limitWarning.toUpperCase());
 		}
