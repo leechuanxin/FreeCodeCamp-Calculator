@@ -1,6 +1,14 @@
 'use strict';
 
 // test 1.22 + 5.6 x 1.3
+// test "x3"
+// test "."
+// test ".3"
+// test "00000000"
+
+var test;
+
+console.log(test == undefined);
 
 // Buttons
 var buttons = (function() {
@@ -88,7 +96,19 @@ var display = (function() {
 
 	// clear entry
 	function clearEntry() {
-		inputText = inputText.slice(0, inputText.length - 1);
+		var previousInput = inputText[inputText.length - 1];
+
+		// removes operator
+		if (util.isOperator(previousInput)) {
+			inputText = inputText.slice(0, inputText.length - 1);
+		}
+		else {
+			while (!util.isOperator(previousInput) && previousInput != undefined) {
+				inputText = inputText.slice(0, inputText.length - 1);
+				previousInput = inputText[inputText.length - 1];
+			}
+		}
+
 		renderInput();
 	};
 
