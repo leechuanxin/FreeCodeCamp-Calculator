@@ -5,6 +5,9 @@
 // test "."
 // test ".3"
 // test "00000000"
+// test "0/0"
+// test "0.3 + 0.6"
+// test "0.6 / 3"
 
 var test;
 
@@ -76,11 +79,14 @@ var display = (function() {
 		var digitAfterAnswer = util.isAnswer(inputText) && (util.isNumber(newInput) || util.isDecimalPoint(newInput)),
 			multipleDecimalPoints = util.isDecimalPoint(newInput) && hasDecimalPointAfterLastOperator,
 			notNumberAfterDecimalPoint = util.isDecimalPoint(previousInput) && !util.isNumber(newInput),
-			notNumberBeforeDecimalPoint = isDecimalPointOrOperator(newInput) && isDecimalPointOrOperator(previousInput),
 			operatorAfterOperator = util.isOperator(previousInput) && util.isOperator(newInput),
-			rejectedConditions = digitAfterAnswer || multipleDecimalPoints || notNumberBeforeDecimalPoint || notNumberAfterDecimalPoint || operatorAfterOperator;
+			rejectedConditions = digitAfterAnswer || multipleDecimalPoints || notNumberAfterDecimalPoint || operatorAfterOperator;
 
-		if (!rejectedConditions) {
+		// add 'ans' text if new input is operator and previous input is empty
+		if (util.isOperator(newInput) && inputText == '') {
+			renderInput(answerText + newInput);
+		}
+		else if (!rejectedConditions) {
 			renderInput(inputText + newInput);
 		}
 	};
@@ -98,10 +104,11 @@ var display = (function() {
 	function clearEntry() {
 		var previousInput = inputText[inputText.length - 1];
 
-		// removes operator
+		// if operator, clear it
 		if (util.isOperator(previousInput)) {
 			inputText = inputText.slice(0, inputText.length - 1);
 		}
+		// if number or "ans", clear its entire entry until next operator or empty string
 		else {
 			while (!util.isOperator(previousInput) && previousInput != undefined) {
 				inputText = inputText.slice(0, inputText.length - 1);
@@ -128,7 +135,9 @@ var display = (function() {
 			// evaluates answer from converted input text
 			renderAnswer(eval(inputText.replace(timesRegex, "*")).toString());
 
-			renderInput(answerText);
+			// clear all input
+			inputText = '';
+			renderInput();
 		}
 	};
 
