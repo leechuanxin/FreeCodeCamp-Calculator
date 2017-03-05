@@ -56,7 +56,7 @@ var display = (function() {
 		answerText = 'ans'.toUpperCase(),
 		isEvaluated = true,
 		limitWarning = 'Limit Reached!'.toUpperCase(),
-		divideByZeroError = 'Error: Divide by Zero'.toUpperCase(),
+		divideByZeroWarning = 'Error: Divide by Zero'.toUpperCase(),
 		maxDisplayLength = 12;
 
 	// init timeout
@@ -193,48 +193,47 @@ var display = (function() {
 		return answerText;
 	};
 
-	// hide error
-	function hideError(element, elementDisplay) {
-		if (element.classList.contains('answer')) {
-			divideByZeroTimeout = setTimeout(function() {
-				if (element.classList.contains('error')) {
-					element.classList.remove('error');
-				}
-
-				answer.textContent = elementDisplay;
-			}, 1000);
-		}
-	};
-
 	// hide warning
-	function hideWarning(element, elementDisplay) {
-		if (element.classList.contains('input')) {
-			inputWarningTimeout = setTimeout(function() {
+	function hideWarning(element, elementDisplay, warning) {
+		if (warning == 'divideByZero') {
+			divideByZeroTimeout = setTimeout(function() {
 				if (element.classList.contains('warning')) {
 					element.classList.remove('warning');
 				}
 
-				input.textContent = elementDisplay;
+				element.textContent = elementDisplay;
 			}, 1000);
 		}
 		else {
-			answerWarningTimeout = setTimeout(function() {
-				if (element.classList.contains('warning')) {
-					element.classList.remove('warning');
-				}
+			if (element.classList.contains('input')) {
+				inputWarningTimeout = setTimeout(function() {
+					if (element.classList.contains('warning')) {
+						element.classList.remove('warning');
+					}
 
-				answer.textContent = elementDisplay;
-			}, 1000);
+					input.textContent = elementDisplay;
+				}, 1000);
+			}
+			else {
+				answerWarningTimeout = setTimeout(function() {
+					if (element.classList.contains('warning')) {
+						element.classList.remove('warning');
+					}
+
+					answer.textContent = elementDisplay;
+				}, 1000);
+			}
 		}
 	};
 
 	// render answer
 	function renderAnswer(str) {
 		var	currentAnswerDisplay = answer.textContent,
-			nextAnswerDisplay = str || answerNum.toString();
+			nextAnswerDisplay = str || answerNum.toString(),
+			isNextAnswerFinite = isFinite(Number(nextAnswerDisplay.toString()));
 
-		// show warning if max display length reached
-		if (nextAnswerDisplay.length <= maxDisplayLength) {
+		// show warning if max display length reached or number is not finite
+		if (nextAnswerDisplay.length <= maxDisplayLength && isNextAnswerFinite) {
 			answerNum = Number(nextAnswerDisplay);
 			answer.textContent = nextAnswerDisplay;
 
@@ -247,17 +246,10 @@ var display = (function() {
 			renderInput();
 		}
 		else if (!answer.classList.contains('warning')) {
-			showWarning(answer, currentAnswerDisplay);
-		}
+			var warningType = (!isNextAnswerFinite) ? 'divideByZero' : 'displayLimit';
 
-		// show error if NaN or infinity
-		// if (isFinite(Number(nextAnswerDisplay))) {
-		// 	answerNum = Number(nextAnswerDisplay);
-		// 	answer.textContent = nextAnswerDisplay;
-		// }
-		// else if (!answer.classList.contains('error')) {
-		// 	showError(answer, currentAnswerDisplay);
-		// }
+			showWarning(answer, currentAnswerDisplay, warningType);
+		}
 	};
 
 	// render input
@@ -270,39 +262,33 @@ var display = (function() {
 			input.textContent = inputText;
 		}
 		else if (!input.classList.contains('warning')) {
-			showWarning(input, currentInputDisplay);
+			showWarning(input, currentInputDisplay, 'displayLimit');
 		}
-	};
-
-	// show error
-	function showError(element, elementDisplay) {
-		element.className += ' error';
-
-		if (element.classList.contains('answer')) {
-			clearTimeout(divideByZeroTimeout);
-
-			answer.textContent = divideByZeroError;
-		}
-
-		hideError(element, elementDisplay);
 	};
 
 	// show warning
-	function showWarning(element, elementDisplay) {
+	function showWarning(element, elementDisplay, warning) {
 		element.className += ' warning';
 
-		if (element.classList.contains('input')) {
-			clearTimeout(inputWarningTimeout);
+		if (warning == 'divideByZero') {
+			clearTimeout(divideByZeroTimeout);
 
-			input.textContent = limitWarning;
+			element.textContent = divideByZeroWarning;
 		}
 		else {
-			clearTimeout(answerWarningTimeout);
+			if (element.classList.contains('input')) {
+				clearTimeout(inputWarningTimeout);
 
-			answer.textContent = limitWarning;
+				input.textContent = limitWarning;
+			}
+			else {
+				clearTimeout(answerWarningTimeout);
+
+				answer.textContent = limitWarning;
+			}
 		}
 
-		hideWarning(element, elementDisplay);
+		hideWarning(element, elementDisplay, warning);
 	};
 
 	return {
