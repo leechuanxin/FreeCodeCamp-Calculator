@@ -10,8 +10,13 @@
 // test "0.6 / 3"
 // test "-3" right after hitting equal
 // test "9 x -3"
-// add replacer for trailing zeros
 // add error notification for NaN and infinity
+// fix previous input not showing after warning
+
+var test = (0/3);
+console.log(isFinite(Number(test.toString())));
+
+
 
 // Buttons
 var buttons = (function() {
@@ -51,11 +56,13 @@ var display = (function() {
 		answerText = 'ans'.toUpperCase(),
 		isEvaluated = true,
 		limitWarning = 'Limit Reached!'.toUpperCase(),
+		divideByZeroError = 'Error: Divide by Zero'.toUpperCase(),
 		maxDisplayLength = 12;
 
 	// init timeout
 	var	inputWarningTimeout,
-		answerWarningTimeout;
+		answerWarningTimeout,
+		divideByZeroTimeout;
 
 	// render
 	renderAnswer();
@@ -178,20 +185,25 @@ var display = (function() {
 		if (util.isNumber(previousInput)) {
 			// eval answer
 			renderAnswer(eval(tempInput).toString());
-
-			// clear all input
-			inputText = '';
-
-			// set new calculation
-			isEvaluated = true;
-
-			renderInput();
 		}
 	};
 
 	// get answer text
 	function getAnswerText() {
 		return answerText;
+	};
+
+	// hide error
+	function hideError(element, elementDisplay) {
+		if (element.classList.contains('answer')) {
+			divideByZeroTimeout = setTimeout(function() {
+				if (element.classList.contains('error')) {
+					element.classList.remove('error');
+				}
+
+				answer.textContent = elementDisplay;
+			}, 1000);
+		}
 	};
 
 	// hide warning
@@ -221,13 +233,31 @@ var display = (function() {
 		var	currentAnswerDisplay = answer.textContent,
 			nextAnswerDisplay = str || answerNum.toString();
 
+		// show warning if max display length reached
 		if (nextAnswerDisplay.length <= maxDisplayLength) {
 			answerNum = Number(nextAnswerDisplay);
 			answer.textContent = nextAnswerDisplay;
+
+			// clear all input
+			inputText = '';
+
+			// set new calculation
+			isEvaluated = true;
+
+			renderInput();
 		}
 		else if (!answer.classList.contains('warning')) {
 			showWarning(answer, currentAnswerDisplay);
 		}
+
+		// show error if NaN or infinity
+		// if (isFinite(Number(nextAnswerDisplay))) {
+		// 	answerNum = Number(nextAnswerDisplay);
+		// 	answer.textContent = nextAnswerDisplay;
+		// }
+		// else if (!answer.classList.contains('error')) {
+		// 	showError(answer, currentAnswerDisplay);
+		// }
 	};
 
 	// render input
@@ -242,6 +272,19 @@ var display = (function() {
 		else if (!input.classList.contains('warning')) {
 			showWarning(input, currentInputDisplay);
 		}
+	};
+
+	// show error
+	function showError(element, elementDisplay) {
+		element.className += ' error';
+
+		if (element.classList.contains('answer')) {
+			clearTimeout(divideByZeroTimeout);
+
+			answer.textContent = divideByZeroError;
+		}
+
+		hideError(element, elementDisplay);
 	};
 
 	// show warning
