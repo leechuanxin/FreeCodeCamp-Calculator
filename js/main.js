@@ -13,26 +13,6 @@
 // add replacer for trailing zeros
 // add error notification for NaN and infinity
 
-// "9 + 9 ="
-// input display: ''
-// 
-// "."
-// input display: '.'
-// 
-
-// "9 + 9 ="
-// ans = 18
-// "x"
-// nothing happens
-// 
-
-
-var test;
-
-// console.log(test == undefined);
-
-// console.log(eval("1- - -  - - -1"));
-
 // Buttons
 var buttons = (function() {
 	// cache DOM
@@ -74,7 +54,7 @@ var display = (function() {
 		maxDisplayLength = 12;
 
 	// init timeout
-	var inputWarningTimeout,
+	var	inputWarningTimeout,
 		answerWarningTimeout;
 
 	// render
@@ -156,17 +136,40 @@ var display = (function() {
 		// init regex
 		var	ansRegex = new RegExp("(" + answerText + ")", "g"),
 			timesRegex = new RegExp("x", "g"),
-			trailingMinusRegex = new RegExp("(-{2,})", "g");
+			trailingMinusRegex = new RegExp("(-{2,})", "g"),
+			leadingZeroesBeforeNonZeroesRegex = new RegExp("^0+[1-9]|[^\\d.]0+[1-9]", "g"),
+			leadingZeroesBeforeZeroesRegex = new RegExp("^0+|[^\\d.]0+", "g");
 
 		// init replacer functions
 		var trailingMinusReplacer = function(match) {
 			return match.split('').join(' ');
 		};
+		var leadingZeroesBeforeNonZeroesReplacer = function(match) {
+			var firstChar = match[0];
+			var lastChar = match[match.length - 1];
 
-		// replace all "ans" and 'x' and trailing minuses
-		var tempInput = inputText.replace(ansRegex, answerNum.toString())
-								 .replace(timesRegex, "*")
-								 .replace(trailingMinusRegex, trailingMinusReplacer);
+			if (firstChar == '+' || firstChar == '-' || firstChar == 'x' || firstChar == '/') {
+				return firstChar + lastChar;
+			}
+			
+			return lastChar;
+		};
+		var leadingZeroesBeforeZeroesReplacer = function(match) {
+			var firstChar = match[0];
+
+			if (firstChar == '+' || firstChar == '-' || firstChar == 'x' || firstChar == '/') {
+				return firstChar + "0";
+			}
+			
+			return "0";
+		};
+
+		// replace all "ans", 'x', leading zeroes and trailing minuses
+		var tempInput =	inputText.replace(ansRegex, answerNum.toString())
+						.replace(leadingZeroesBeforeNonZeroesRegex, leadingZeroesBeforeNonZeroesReplacer)
+						.replace(leadingZeroesBeforeZeroesRegex, leadingZeroesBeforeZeroesReplacer)
+						.replace(timesRegex, "*")
+						.replace(trailingMinusRegex, trailingMinusReplacer);
 
 		// init previous input
 		var previousInput = tempInput[tempInput.length - 1];
