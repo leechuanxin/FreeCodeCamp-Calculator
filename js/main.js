@@ -57,7 +57,8 @@ var display = (function() {
 		isEvaluated = true,
 		limitWarning = 'Limit Reached!'.toUpperCase(),
 		divideByZeroWarning = 'Error: Divide by Zero'.toUpperCase(),
-		maxAnswerLength = 12;
+		maxAnswerLength = 12,
+		maxInputLength = 17;
 
 	// init timeout
 	var	inputWarningTimeout,
@@ -255,15 +256,18 @@ var display = (function() {
 
 	// render input
 	function renderInput(str) {
-		var	currentInputDisplay = input.textContent,
-			nextInputDisplay = str || inputText;
+		// set inputText
+		inputText = str || inputText;
 
-		if (nextInputDisplay.length <= maxAnswerLength) {
-			inputText = nextInputDisplay;
-			input.textContent = inputText;
+		// init exceeded input length
+		var exceededLength = inputText.length - maxInputLength;
+
+		// prepend '...' and cut excessive length if inputText.length > maxInputLength
+		if (inputText.length > maxInputLength) {
+			input.textContent = '...' + inputText.slice(exceededLength + 3);
 		}
-		else if (!input.classList.contains('warning')) {
-			showWarning(input, currentInputDisplay, 'displayLimit');
+		else {
+			input.textContent = inputText;
 		}
 	};
 
