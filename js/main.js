@@ -56,14 +56,13 @@ var display = (function() {
 	    answerNum = 0,
 	    answerText = 'ans'.toUpperCase(),
 	    isEvaluated = true,
-	    limitWarning = 'Limit Reached!'.toUpperCase(),
+	    displayLimitWarning = 'Error: Limit Reached'.toUpperCase(),
 	    divideByZeroWarning = 'Error: Divide by Zero'.toUpperCase(),
 	    maxAnswerLength = 12,
 	    maxInputWidth = 209; // input limit determined by width in px, not number of chars
 
 	// init timeout
-	var inputWarningTimeout,
-	    answerWarningTimeout,
+	var displayLimitTimeout,
 	    divideByZeroTimeout;
 
 	// render
@@ -196,36 +195,25 @@ var display = (function() {
 		return answerText;
 	};
 
-	// hide warning
-	function hideWarning(element, elementDisplay, warning) {
-		if (warning == 'divideByZero') {
+	// hide warning (after timeout)
+	function hideWarning(displayAfterWarning, warningType) {
+		if (warningType == 'divideByZero') {
 			divideByZeroTimeout = setTimeout(function() {
-				if (element.classList.contains('warning')) {
-					element.classList.remove('warning');
+				if (answer.classList.contains('warning')) {
+					answer.classList.remove('warning');
 				}
 
-				element.textContent = elementDisplay;
+				answer.textContent = displayAfterWarning;
 			}, 1000);
 		}
-		else {
-			if (element.classList.contains('input')) {
-				inputWarningTimeout = setTimeout(function() {
-					if (element.classList.contains('warning')) {
-						element.classList.remove('warning');
-					}
+		else if (warningType == 'displayLimit') {
+			displayLimitTimeout = setTimeout(function() {
+				if (answer.classList.contains('warning')) {
+					answer.classList.remove('warning');
+				}
 
-					input.textContent = elementDisplay;
-				}, 1000);
-			}
-			else {
-				answerWarningTimeout = setTimeout(function() {
-					if (element.classList.contains('warning')) {
-						element.classList.remove('warning');
-					}
-
-					answer.textContent = elementDisplay;
-				}, 1000);
-			}
+				answer.textContent = displayAfterWarning;
+			}, 1000);
 		}
 	};
 
@@ -237,7 +225,7 @@ var display = (function() {
 		    isNextAnswerFinite = isFinite(Number(answerDisplayStr)),
 		    warningType = (!isNextAnswerFinite) ? 'divideByZero' : 'displayLimit';
 
-		// show warning if number is not finite
+		// render input if number is finite; otherwise show warning
 		if (isNextAnswerFinite) {
 			answerNum = answerDisplayNum;
 			answer.textContent = answerDisplayStr;
@@ -251,7 +239,7 @@ var display = (function() {
 			renderInput();
 		}
 		else if (!answer.classList.contains('warning')) {
-			showWarning(answer, currentAnswerDisplay, warningType);
+			showWarning(currentAnswerDisplay, inputText);
 		}
 	};
 
@@ -369,28 +357,32 @@ var display = (function() {
 	};
 
 	// show warning
-	function showWarning(element, elementDisplay, warning) {
-		element.className += ' warning';
+	function showWarning(displayAfterWarning, currentInput) {
+		// init
+		var divideByZeroRegex = /\/(0*\.)*(0+[^0-9.]|0+$)/,
+		    warningType = '';
 
-		if (warning == 'divideByZero') {
+		// add warning class
+		answer.className += ' warning';
+
+		// give divide-by-zero error if string matches regex
+		if (divideByZeroRegex.test(currentInput)) {
 			clearTimeout(divideByZeroTimeout);
 
-			element.textContent = divideByZeroWarning;
+			warningType = 'divideByZero';
+
+			answer.textContent = divideByZeroWarning;
 		}
 		else {
-			if (element.classList.contains('input')) {
-				clearTimeout(inputWarningTimeout);
+			clearTimeout(displayLimitTimeout);
 
-				input.textContent = limitWarning;
-			}
-			else {
-				clearTimeout(answerWarningTimeout);
+			warningType = 'displayLimit';
 
-				answer.textContent = limitWarning;
-			}
+			answer.textContent = displayLimitWarning;
 		}
 
-		hideWarning(element, elementDisplay, warning);
+		// hide warning (timeout in function)
+		hideWarning(displayAfterWarning, warningType);
 	};
 
 	return {
@@ -398,8 +390,7 @@ var display = (function() {
 		clearEntry: clearEntry,
 		clearAll: clearAll,
 		equal: equal,
-		getAnswerText: getAnswerText,
-		renderAnswer: renderAnswer
+		getAnswerText: getAnswerText
 	};
 })();
 
