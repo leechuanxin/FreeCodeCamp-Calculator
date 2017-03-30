@@ -38,7 +38,6 @@ var buttons = (function() {
 					display.equal();
 					break;
 				default:
-				// display.addInput('...');
 					display.addInput(buttonTextContent);
 			}
 		};
@@ -49,23 +48,23 @@ var buttons = (function() {
 // Display
 var display = (function() {
 	// cache DOM
-	var	input = document.querySelector('.input').querySelector('span'),
-		answer = document.querySelector('.answer');
+	var input = document.querySelector('.input').querySelector('span'),
+	    answer = document.querySelector('.answer');
 
 	// init variables
-	var	inputText = '',
-		answerNum = 0,
-		answerText = 'ans'.toUpperCase(),
-		isEvaluated = true,
-		limitWarning = 'Limit Reached!'.toUpperCase(),
-		divideByZeroWarning = 'Error: Divide by Zero'.toUpperCase(),
-		maxAnswerLength = 12,
-		maxInputWidth = 209; // input limit determined by width in px, not number of chars
+	var inputText = '',
+	    answerNum = 0,
+	    answerText = 'ans'.toUpperCase(),
+	    isEvaluated = true,
+	    limitWarning = 'Limit Reached!'.toUpperCase(),
+	    divideByZeroWarning = 'Error: Divide by Zero'.toUpperCase(),
+	    maxAnswerLength = 12,
+	    maxInputWidth = 209; // input limit determined by width in px, not number of chars
 
 	// init timeout
-	var	inputWarningTimeout,
-		answerWarningTimeout,
-		divideByZeroTimeout;
+	var inputWarningTimeout,
+	    answerWarningTimeout,
+	    divideByZeroTimeout;
 
 	// render
 	renderAnswer();
@@ -74,25 +73,25 @@ var display = (function() {
 	// add input
 	function addInput(newInput) {
 		// init indexes
-		var	previousInput = inputText[inputText.length - 1],
-			divideLastIndex = inputText.lastIndexOf('/'),
-			minusLastIndex = inputText.lastIndexOf('-'),
-			plusLastIndex = inputText.lastIndexOf('+'),
-			timesLastIndex = inputText.lastIndexOf('x'),
-			operatorLastIndexArr = [divideLastIndex, minusLastIndex, plusLastIndex, timesLastIndex];
+		var previousInput = inputText[inputText.length - 1],
+		    divideLastIndex = inputText.lastIndexOf('/'),
+		    minusLastIndex = inputText.lastIndexOf('-'),
+		    plusLastIndex = inputText.lastIndexOf('+'),
+		    timesLastIndex = inputText.lastIndexOf('x'),
+		    operatorLastIndexArr = [divideLastIndex, minusLastIndex, plusLastIndex, timesLastIndex];
 
 		// init basic conditions
-		var	hasDecimalPointAfterLastOperator = (inputText.lastIndexOf('.') > Math.max.apply(null, operatorLastIndexArr)),
-			isPreviousInputAnswer = (inputText.slice(inputText.length - answerText.length) == answerText);	
+		var hasDecimalPointAfterLastOperator = (inputText.lastIndexOf('.') > Math.max.apply(null, operatorLastIndexArr)),
+		    isPreviousInputAnswer = (inputText.slice(inputText.length - answerText.length) == answerText);	
 			
 		// init complex conditions
-		var	hasDigitAfterAnswer = isPreviousInputAnswer && util.isAnswerOrDecimalPointOrNumber(newInput),
-			hasDigitBeforeAnswer = util.isAnswer(newInput) && (util.isDecimalPointOrNumber(previousInput) || isPreviousInputAnswer),
-			displayAnswerBeforeMinus = util.isMinus(newInput) && (isEvaluated == true) && (answerNum != 0),
-			hasMultipleDecimalPoints = util.isDecimalPoint(newInput) && hasDecimalPointAfterLastOperator,
-			hasNotNumberAfterDecimalPoint = util.isDecimalPoint(previousInput) && !util.isNumber(newInput),
-			hasOperatorAfterOperator = util.isOperator(previousInput) && util.isNotMinusOperator(newInput),
-			rejectedConditions = hasDigitAfterAnswer || hasDigitBeforeAnswer || hasMultipleDecimalPoints || hasNotNumberAfterDecimalPoint || hasOperatorAfterOperator;
+		var hasDigitAfterAnswer = isPreviousInputAnswer && util.isAnswerOrDecimalPointOrNumber(newInput),
+		    hasDigitBeforeAnswer = util.isAnswer(newInput) && (util.isDecimalPointOrNumber(previousInput) || isPreviousInputAnswer),
+		    displayAnswerBeforeMinus = util.isMinus(newInput) && (isEvaluated == true) && (answerNum != 0),
+		    hasMultipleDecimalPoints = util.isDecimalPoint(newInput) && hasDecimalPointAfterLastOperator,
+		    hasNotNumberAfterDecimalPoint = util.isDecimalPoint(previousInput) && !util.isNumber(newInput),
+		    hasOperatorAfterOperator = util.isOperator(previousInput) && util.isNotMinusOperator(newInput),
+		    rejectedConditions = hasDigitAfterAnswer || hasDigitBeforeAnswer || hasMultipleDecimalPoints || hasNotNumberAfterDecimalPoint || hasOperatorAfterOperator;
 
 		// add 'ans' text for all operators (except minus)
 		// if minus, add 'ans' if current answer != 0 and input has just been evaluated
@@ -144,11 +143,11 @@ var display = (function() {
 	// equal
 	function equal() {
 		// init regex
-		var	ansRegex = new RegExp("(" + answerText + ")", "g"),
-			timesRegex = new RegExp("x", "g"),
-			trailingMinusRegex = new RegExp("(-{2,})", "g"),
-			leadingZeroesBeforeNonZeroesRegex = new RegExp("^0+[1-9]|[^\\d.]0+[1-9]", "g"),
-			leadingZeroesBeforeZeroesRegex = new RegExp("^0+|[^\\d.]0+", "g");
+		var ansRegex = new RegExp("(" + answerText + ")", "g"),
+		    timesRegex = new RegExp("x", "g"),
+		    trailingMinusRegex = new RegExp("(-{2,})", "g"),
+		    leadingZeroesBeforeNonZeroesRegex = new RegExp("^0+[1-9]|[^\\d.]0+[1-9]", "g"),
+		    leadingZeroesBeforeZeroesRegex = new RegExp("^0+|[^\\d.]0+", "g");
 
 		// init replacer functions
 		var trailingMinusReplacer = function(match) {
@@ -175,12 +174,12 @@ var display = (function() {
 		};
 
 		// replace all "ans", 'x', leading zeroes and trailing minuses
-		var replacedInput =	inputText
-							.replace(ansRegex, answerNum.toString())
-							.replace(leadingZeroesBeforeNonZeroesRegex, leadingZeroesBeforeNonZeroesReplacer)
-							.replace(leadingZeroesBeforeZeroesRegex, leadingZeroesBeforeZeroesReplacer)
-							.replace(timesRegex, "*")
-							.replace(trailingMinusRegex, trailingMinusReplacer);
+		var replacedInput = inputText
+		                    .replace(ansRegex, answerNum.toString())
+		                    .replace(leadingZeroesBeforeNonZeroesRegex, leadingZeroesBeforeNonZeroesReplacer)
+		                    .replace(leadingZeroesBeforeZeroesRegex, leadingZeroesBeforeZeroesReplacer)
+		                    .replace(timesRegex, "*")
+		                    .replace(trailingMinusRegex, trailingMinusReplacer);
 
 		// init previous input
 		var previousInput = replacedInput[replacedInput.length - 1];
@@ -232,11 +231,11 @@ var display = (function() {
 
 	// render answer
 	function renderAnswer(num) {
-		var	currentAnswerDisplay = answer.textContent,
-			answerDisplayNum = (num == undefined) ? answerNum : num,
-			answerDisplayStr = round(answerDisplayNum.toString()), // round numbers with length > maxAnswerLength
-			isNextAnswerFinite = isFinite(Number(answerDisplayStr)),
-			warningType = (!isNextAnswerFinite) ? 'divideByZero' : 'displayLimit';
+		var currentAnswerDisplay = answer.textContent,
+		    answerDisplayNum = (num == undefined) ? answerNum : num,
+		    answerDisplayStr = round(answerDisplayNum.toString()), // round numbers with length > maxAnswerLength
+		    isNextAnswerFinite = isFinite(Number(answerDisplayStr)),
+		    warningType = (!isNextAnswerFinite) ? 'divideByZero' : 'displayLimit';
 
 		// show warning if number is not finite
 		if (isNextAnswerFinite) {
@@ -277,15 +276,15 @@ var display = (function() {
 
 	// round numbers with length > maxAnswerLength
 	function round(str) {
-		var	hasDecimalPoint = (str.indexOf('.') > -1),
-			hasExpSign = (str.indexOf('e') > -1),
-			integerStr,
-			decimalStr,
-			decimalStrLeadingZeroesCount = 0,
-			roundedDecimalStr, // decimalStr after rounding, to be compared with decimalStr
-			expVal = 0, // initial and final exp val
-			addedExpVal, // exp value to add to initial exp value should str.length > maxAnswerLength
-			droppedCharCount = 0; // number of characters to drop after rounding
+		var hasDecimalPoint = (str.indexOf('.') > -1),
+		    hasExpSign = (str.indexOf('e') > -1),
+		    integerStr,
+		    decimalStr,
+		    decimalStrLeadingZeroesCount = 0,
+		    roundedDecimalStr, // decimalStr after rounding, to be compared with decimalStr
+		    expVal = 0, // initial and final exp val
+		    addedExpVal, // exp value to add to initial exp value should str.length > maxAnswerLength
+		    droppedCharCount = 0; // number of characters to drop after rounding
 
 		// set decimalStr
 		if (hasDecimalPoint) {
@@ -362,7 +361,8 @@ var display = (function() {
 			}
 
 			// reset str
-			str = integerStr + ((decimalStr == '') ? ('') : ('.' + decimalStr)) + ((Number(expVal) != 0) ? ('e' + expVal) : '');
+			str = integerStr 
+			      + ((decimalStr == '') ? ('') : ('.' + decimalStr)) + ((Number(expVal) != 0) ? ('e' + expVal) : '');
 		}
 
 		return str;
