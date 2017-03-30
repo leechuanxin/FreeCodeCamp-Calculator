@@ -1,5 +1,6 @@
 'use strict';
 
+
 // Buttons
 var buttons = (function() {
 	// cache DOM
@@ -37,6 +38,7 @@ var buttons = (function() {
 					display.equal();
 					break;
 				default:
+				// display.addInput('...');
 					display.addInput(buttonTextContent);
 			}
 		};
@@ -47,7 +49,7 @@ var buttons = (function() {
 // Display
 var display = (function() {
 	// cache DOM
-	var	input = document.querySelector('.input'),
+	var	input = document.querySelector('.input').querySelector('span'),
 		answer = document.querySelector('.answer');
 
 	// init variables
@@ -58,7 +60,7 @@ var display = (function() {
 		limitWarning = 'Limit Reached!'.toUpperCase(),
 		divideByZeroWarning = 'Error: Divide by Zero'.toUpperCase(),
 		maxAnswerLength = 12,
-		maxInputLength = 17;
+		maxInputWidth = 209; // input limit determined by width in px, not number of chars
 
 	// init timeout
 	var	inputWarningTimeout,
@@ -259,26 +261,25 @@ var display = (function() {
 		// set inputText
 		inputText = str || inputText;
 
-		// init exceeded input length
-		var exceededLength = inputText.length - maxInputLength;
+		// render input.textContent with inputText
+		input.textContent = inputText;
 
-		// prepend '...' and cut excessive length if inputText.length > maxInputLength
-		if (inputText.length > maxInputLength) {
-			input.textContent = '...' + inputText.slice(exceededLength + 3);
-		}
-		else {
-			input.textContent = inputText;
-		}
+		// prepend ellipsis to input.textContent if input.textContent's width >= maxInputWidth
+		if (input.offsetWidth > maxInputWidth) {
+			input.textContent = '...' + inputText;
+
+			// slice characters until input (with ellipsis) fits display
+			for (var k = 1; input.offsetWidth > maxInputWidth; k++) {
+				input.textContent = '...' + inputText.substring(k);
+			}
+		};
 	};
 
 	// round numbers with length > maxAnswerLength
 	function round(str) {
 		var	hasDecimalPoint = (str.indexOf('.') > -1),
-			decimalPointIndex = str.indexOf('.'),
 			hasExpSign = (str.indexOf('e') > -1),
-			isNegative = (str.indexOf('-') == 0),
 			integerStr,
-			// integerStr = (hasDecimalPoint || !hasExpSign) ? str.split('.')[0] : str.split('e')[0],
 			decimalStr,
 			decimalStrLeadingZeroesCount = 0,
 			roundedDecimalStr, // decimalStr after rounding, to be compared with decimalStr
@@ -300,9 +301,9 @@ var display = (function() {
 		if (str.length > maxAnswerLength) {
 			// set addedExpVal
 			if (hasDecimalPoint) { // all number str with decimal points, including those with exp
-				addedExpVal = decimalPointIndex - 1;
+				addedExpVal = str.indexOf('.') - 1;
 			}
-			else if (isNegative) { // negative integers
+			else if (str.indexOf('-') == 0) { // negative integers
 				addedExpVal = str.length - 2;
 			}
 			else { // positive integers
@@ -397,7 +398,8 @@ var display = (function() {
 		clearEntry: clearEntry,
 		clearAll: clearAll,
 		equal: equal,
-		getAnswerText: getAnswerText
+		getAnswerText: getAnswerText,
+		renderAnswer: renderAnswer
 	};
 })();
 
