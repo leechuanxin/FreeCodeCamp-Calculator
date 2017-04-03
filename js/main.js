@@ -293,7 +293,8 @@ var display = (function() {
 			}
 			else if (hasDecimalPoint) { // all negative number str with decimal points, including those with exp
 				// deduct 1 more from new decimal point index because of negative sign
-				addedExpVal = str.indexOf('.')
+				addedExpVal = str.indexOf('.') - 1 - 1;
+			}
 			else if (str.indexOf('-') == 0) { // negative integers
 				addedExpVal = str.length - 2;
 			}
