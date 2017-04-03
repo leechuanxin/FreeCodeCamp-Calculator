@@ -287,7 +287,8 @@ var display = (function() {
 		// rounds if str.length > maxAnswerLength
 		if (str.length > maxAnswerLength) {
 			// set addedExpVal
-			if (hasDecimalPoint) { // all number str with decimal points, including those with exp
+			if (hasDecimalPoint) { // all number str with decimal points including those with exp
+				// decimal point will be newly placed next to first non-zero integer
 				addedExpVal = str.indexOf('.') - 1;
 			}
 			else if (str.indexOf('-') == 0) { // negative integers
@@ -359,7 +360,7 @@ var display = (function() {
 	// show warning
 	function showWarning(displayAfterWarning, currentInput) {
 		// init
-		var divideByZeroRegex = /\/(0*\.)*(0+[^0-9.]|0+$)/,
+		var divideByZeroRegex = /\/(-)*(0*\.)*(0+[^0-9.]|0+$)/,
 		    warningType = '';
 
 		// add warning class
